@@ -43,7 +43,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     img: (props) => (
       <Image
         sizes="80vw"
-        style={{ width: '80%', height: 'auto' }}
+        style={{ width: '80%', height: 'auto', display: 'block', margin: 'auto' }}
         {...(props as ImageProps)}
       />
     ),

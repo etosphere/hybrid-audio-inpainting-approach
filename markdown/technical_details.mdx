@@ -100,3 +100,8 @@ The unmatched dead partials are treated similarly as the unmatched born partials
 
 ![parabola-extrapolation-of-partial-death](./images/parabola-partial-death.webp)
 
+## Post-processing
+
+Before applying a short crossfade at the boundaries of the gap, we apply the fast Griffin-Lim algorithm (Perraudin, Balazs, and Søndergaard, 2013) to fix the phase around the gap boundaries.
+For each iteration, the samples in the reliable section are replaced with those of the original signal.
+The window size is 1024, the hop size is 32 samples, $\alpha$ is set to 0.99, and the number of iteration is 200.
