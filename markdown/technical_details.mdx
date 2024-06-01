@@ -1,0 +1,80 @@
+This page will describe the technical details for some methods used in the hybrid audio inpainting approach.
+
+## Pre-processing
+
+## Tuning of parameter lambda
+
+For tuning parameter $\lambda$ of the tonal decomposition process, a short-time Fourier transform (STFT) of the signal is performed using a Hann window of length 128 and a hop size of 32. The gradient magnitude at the location of each TF atom is computed (a slight abuse of notation for the gradient), which reflects their local variability:
+$$
+\begin{equation}
+  |\nabla x_{m,k}| = \sqrt{\left|\frac{\partial x_{m,k}}{\partial m}\right|^2 + \left|\frac{\partial x_{m,k}}{\partial k}\right|^2}
+\end{equation}
+$$
+where $x_{m,k}$ represents the STFT coefficient of a signal at frame number $m$ and frequency channel $k$.
+
+The gradient in discrete time can be estimated using the *central difference* for inner values:
+$$
+\begin{align}
+  \frac{\partial x_{m,k}}{\partial m} & = \frac{x_{m+1,k} - x_{m-1,k}}{2} \\
+  \frac{\partial x_{m,k}}{\partial k} & = \frac{x_{m,k+1} - x_{m,k-1}}{2}
+\end{align}
+$$
+and *single-sided differences* for values along the outermost edges of the matrix.
+
+The randomness of the gradient magnitudes is quantified by evaluating their spectral flatness:
+$$
+\begin{equation}
+  \mathrm{flatness}_{\nabla}(m) = \frac{\left(\prod_{k=1}^K |\nabla x_{m,k}|\right)^{1/K}}{\frac{1}{K} \sum_{k=1}^{K} |\nabla x_{m,k}|}
+\end{equation}
+$$
+
+The relative noisiness level of the STFT of the original signal is determined by taking the median value of the spectral flatness of the gradient magnitudes.
+
+Since spectral flatness is a relative value and $\lambda$ is an absolute value for the coefficients of the atoms, we use spectral flatness and root-mean-square energy (RMSE) of the input signal together to predict the value of $\lambda$. $\lambda$ is calculated from the following equation, obtained by fitting a linear regression between $\log_{10}(\lambda)$ and the $\log_{10}$ of the product of the spectral flatness and the RMSE. The data points for linear regression come from an experiment. In the experiment, a synthesized signal consisting of frequency-modulated sinusoids and linear chirps is created. The number of atoms with non-zero coefficients after decomposing the signal (setting $\lambda = 0$) is used as the baseline to measure the sparsity. Then, we add white noise with different noise levels to the synthesized signal and decompose the signal with different $\lambda$. The smallest $\lambda$ that reaches the baseline is considered to be the optimal $\lambda$, and will be used for the linear regression. The regression result is formulated as:
+$$
+\begin{equation}
+  \log_{10}\lambda = 1.73999 \log_{10}(\theta_{\mathrm{med}} \cdot \mu_{\mathrm{R}}) + 0.22588
+\end{equation}
+$$
+where $\theta_{\mathrm{med}} = \operatorname{med}\{\mathrm{flatness}_{\nabla}\}$ is the median value of the spectral flatness values $\mathrm{flatness}_{\nabla}$, and $\mu_{\mathrm{R}} = \operatorname{RMSE}(\mathbf{M}_{\mathrm{R}} \mathbf{y})$ is the RMSE of the reliable parts of signal $\mathbf{y}$.
+
+Parameter $\lambda$ in transient decomposition is obtained similarly. Instead of calculating the spectral flatness of the gradient magnitudes, we calculate it from the gradient only along the frequency direction. The parameter $\lambda$ can be calculated by the following equation:
+$$
+\begin{equation}
+  \log_{10}\lambda = 1.20976 \log_{10}(\theta_{90\%} \cdot \mu_{\mathrm{R}}) + 0.54744
+\end{equation}
+$$
+where $\theta_{90\%}$ is the 90th percentile of the spectral flatness values, $\mu_{\mathrm{R}} = \operatorname{RMSE}(\mathbf{M}_{\mathrm{R}} \mathbf{y}_{\mathrm{res}})$ is the RMSE of the reliable parts of the tonal residual signal $\mathbf{y}_{\mathrm{res}}$.
+
+## Partial reconnection
+The process starts by selecting the longest partial and comparing it with all other nearby partials. Nearby partials are defined by their boundary frequency difference in ERB scale, with the long partial being less than a threshold $\Delta_f^{\mathrm{boundary}}$.
+
+For each pair of selected partials, the long one needs to be extrapolated for comparison. There are two cases of extrapolation of the long partial: if they overlap, the overlapping data points are removed and then the long partial is extrapolated using the proposed prediction method. If they do not overlap, the full range of data points is used to extrapolate the long partial.
+
+## Partial extrapolation
+If the slope is positive, indicating an increasing amplitude in the long term, the predicted amplitude at the beginning of the gap is checked against a certain threshold. If it is below (or equal to) the threshold, the predicted amplitude is unchanged. If it is above the threshold, a linear attack is added so that the amplitude at the beginning of the gap reaches the threshold.
+
+If the slope is negative or zero, indicating a decreasing or constant amplitude in the long term, we assume the partial is attacked and then decayed during the gap in this scenario. Therefore, the amplitude curve is constructed by replacing the linear trend with a parabola that satisfies three conditions:
+- the first reliable amplitude after the gap should be on the parabola,
+- the derivative of the parabola at the first reliable data point after the gap should be the same as the slope of the linear trend, if the slope of the linear trend is not too steep, and
+- the amplitude at the start of the partial should be below the minimal amplitude threshold.
+
+![parabola-shape](./paper/figures/amplitude-parabola-partial-birth.pdf)
+
+The parabola in the form of $ax^2+bx+c$ can be derived by solving the following linear equations:
+$$
+\begin{equation}
+  \begin{pmatrix}
+    k_{\mathrm{R}}^2 & k_{\mathrm{R}} & 1 \\
+    2k_{\mathrm{R}} & 1 & 0 \\
+    (k_{\mathrm{R}} - l_{\mathrm{birth}})^2 & (k_{\mathrm{R}} - l_{\mathrm{birth}}) & 1
+  \end{pmatrix}
+  \begin{pmatrix}
+    a \\ b \\ c
+  \end{pmatrix} =
+  \begin{pmatrix}
+    a_{\mathrm{R}} \\ \beta_{\mathrm{trend}} \\ T_a
+  \end{pmatrix}
+\end{equation}
+$$
+where $a_{\mathrm{R}}$ is the first reliable amplitude after the gap, $\beta_{\mathrm{trend}}$ is the slope of linear trend, and $l_{\mathrm{birth}}$ is the length of the partial birth.

@@ -6,6 +6,7 @@ import React from "react";
 import Image from "next/image";
 
 export default function Experiment2Page() {
+	const [selectedSound, setSelectedSound] = React.useState("09_Viola");
 	const [selectedGapLen, setSelectedGapLen] = React.useState("50ms");
 	const [selectedResult, setSelectedResult] = React.useState("original");
 
@@ -18,6 +19,20 @@ export default function Experiment2Page() {
 
 			<div className="grid grid-cols-1 gap-y-4 text-center justify-center justify-items-center">
 				<RadioGroup
+					label="Select sound"
+					orientation="horizontal"
+					value={selectedSound}
+					onValueChange={setSelectedSound}
+					className="items-center"
+				>
+					<Radio value="09_Viola">Viola</Radio>
+					<Radio value="23_Horn">Horn</Radio>
+					<Radio value="35_Glockenspiel">Glockenspiel</Radio>
+					<Radio value="44_Soprano">Soprano</Radio>
+					<Radio value="56_Organ">Organ</Radio>
+					<Radio value="58_Guitar">Guitar</Radio>
+				</RadioGroup>
+				<RadioGroup
 					label="Select gap length (ms)"
 					orientation="horizontal"
 					value={selectedGapLen}
@@ -28,9 +43,8 @@ export default function Experiment2Page() {
 					<Radio value="25ms">25</Radio>
 					<Radio value="50ms">50</Radio>
 					<Radio value="100ms">100</Radio>
-					<Radio value="200ms">200</Radio>
+					<Radio value="150ms">150</Radio>
 				</RadioGroup>
-
 				<RadioGroup
 					label="Select result"
 					orientation="horizontal"
@@ -58,7 +72,7 @@ export default function Experiment2Page() {
 					style={{backgroundColor: "white"}}
 				/>*/}
 
-				<audio controls src={`./audios/experiment2/${selectedGapLen}-${selectedResult}.wav`}/>
+				<audio controls src={`./audios/experiment2/${selectedGapLen}-${selectedSound}-${selectedResult}.wav`}/>
 			</div>
 		</div>
 	);
