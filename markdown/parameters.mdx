@@ -1,5 +1,7 @@
 This page will describe the parameters used in the hybrid audio inpainting approach.
 
+## Parameters in Experiment 2
+
 ### Pre-Processing Parameters
 
 - $N_{\mathrm{neighbor}}$: The length (in samples) of each expanded neighborhood. The default value is set to: $H_{\mathrm{tonal}} \cdot \max\left\{\left\lceil\frac{N_{\mathrm{gap}}}{H_{\mathrm{tonal}}}\right\rceil, 32\right\}$, where $H_{\mathrm{tonal}}$ is the time shift for tonal decomposition, $N_{\mathrm{gap}}$ is the number of samples of the gap.
@@ -8,10 +10,10 @@ This page will describe the parameters used in the hybrid audio inpainting appro
 
 | Parameter                                          |             Symbol             | Value |
 |:---------------------------------------------------|:------------------------------:|:-----:|
-| Window size (in sample)                            |    $\Psi_{\mathrm{tonal}}$     | 2048  |
-| Time shift / hop size (in sample)                  |      $H_{\mathrm{tonal}}$      |  256  |
+| Window size (in sample)                            |    $\Psi_{\mathrm{tonal}}$     | 1024  |
+| Time shift / hop size (in sample)                  |      $H_{\mathrm{tonal}}$      |  128  |
 | Sparsity parameter along frequency                 |            $\gamma$            | 0.15  |
-| Error tolerance                                    | $\varepsilon_{\mathrm{tonal}}$ |  0.5  |
+| Error tolerance                                    | $\varepsilon_{\mathrm{tonal}}$ |  0.75 |
 | Step size of variable $\mathbf{u}$ in LV algorithm |            $\sigma$            |  2/3  |
 | Step size of variable $\mathbf{v}$ in LV algorithm |             $\tau$             |  1.5  |
 | Relaxation parameter in LV algorithm               |             $\rho$             |   1   |
@@ -21,14 +23,16 @@ This page will describe the parameters used in the hybrid audio inpainting appro
 
 | Parameter                                                |              Symbol              | Value |
 |:---------------------------------------------------------|:--------------------------------:|:-----:|
-| Window size (in sample)                                  |    $\Psi_{\mathrm{partial}}$     | 1024  |
-| Time shift / hop size (in sample)                        |      $H_{\mathrm{partial}}$      |  128  |
+| Window size (in sample)                                  |    $\Psi_{\mathrm{partial}}$     | 2048  |
+| Time shift / hop size (in sample)                        |      $H_{\mathrm{partial}}$      |  256  |
 | Amplitude threshold for peak picking (in dB)             |       $a_{\mathrm{peak}}$        |  −50  |
-| Order of exponential sinusoidal model in DDM             |               $Q$                |   2   |
+| Order of exponential sinusoidal model in DDM             |               $Q$                |   3   |
 | Preference between useful and spurious assignments       |    $\delta^{\mathrm{track}}$     |  0.5  |
-| Assignment threshold for amplitude change (in dB)        |    $\zeta_a^{\mathrm{track}}$    |  15   |
+| Assignment threshold for amplitude change (in dB)        |    $\zeta_a^{\mathrm{track}}$    |   6   |
 | Assignment threshold for frequency change (in ERB scale) |    $\zeta_f^{\mathrm{track}}$    |  0.2  |
-| Assignment threshold for frequency slope change          | $\zeta_{\beta}^{\mathrm{track}}$ | 0.006 |
+| Assignment threshold for frequency slope change          | $\zeta_{\beta}^{\mathrm{track}}$ | 0.005 |
+
+> For gap size less than 25 ms, the window size is changed to 1024, and the hop size is 128.
 
 #### Partial prediction
 The coefficient of determination ($R^2$) for the regression is calculated to separate trend and periodicity components. If $R^2$ is greater than threshold $T^{\mathrm{trend}}$, the trend is considered as it exists. If $R^2$ is further greater than a threshold $T^{\mathrm{period}}$, the trend is considered as non-existent. These two thresholds varies for predicting frequency and amplitude of a partial.
@@ -39,18 +43,18 @@ The AR order of Burg's method $p_{\mathrm{predict}}$ should be large for better 
 |:--------------------------------------------------|:-----------------------:|:-----:|
 | Threshold of trend for predicting frequency       | $T_f^{\mathrm{trend}}$  | 0.92  |
 | Threshold of periodicity for predicting frequency | $T_f^{\mathrm{period}}$ | 0.98  |
-| Threshold of trend for predicting amplitude       | $T_a^{\mathrm{trend}}$  | 0.88  |
-| Threshold of periodicity for predicting amplitude | $T_a^{\mathrm{period}}$ | 0.96  |
+| Threshold of trend for predicting amplitude       | $T_a^{\mathrm{trend}}$  | 0.86  |
+| Threshold of periodicity for predicting amplitude | $T_a^{\mathrm{period}}$ | 0.95  |
 
 #### Partial reconnection
 | Parameter                                                          |                Symbol                 | Value  |
 |:-------------------------------------------------------------------|:-------------------------------------:|:------:|
-| Partial length threshold for potential reconnection (in window)    | $l_{\mathrm{min}}^{\mathrm{connect}}$ |   5    |
-| Maximum frequency difference between partial bounds (in ERB scale) |    $\Delta_f^{\mathrm{boundary}}$     |  0.5   |
-| Assignment threshold for amplitude change (in dB)                  |     $\zeta_a^{\mathrm{connect}}$      |   10   |
-| Assignment threshold for frequency change                          |     $\zeta_f^{\mathrm{connect}}$      | 0.0004 |
+| Partial length threshold for potential reconnection (in window)    | $l_{\mathrm{min}}^{\mathrm{connect}}$ |   4    |
+| Maximum frequency difference between partial bounds (in ERB scale) |    $\Delta_f^{\mathrm{boundary}}$     |  0.4   |
+| Assignment threshold for amplitude change (in dB)                  |     $\zeta_a^{\mathrm{connect}}$      |   5    |
+| Assignment threshold for frequency change                          |     $\zeta_f^{\mathrm{connect}}$      | 0.0003 |
 | Preference between useful and spurious assignments                 |      $\delta^{\mathrm{connect}}$      |  0.5   |
-| Maximum length of partial overlap (in window)                      | $l_{\mathrm{max}}^{\mathrm{overlap}}$ |   5    |
+| Maximum length of partial overlap (in window)                      | $l_{\mathrm{max}}^{\mathrm{overlap}}$ |   3    |
 | Maximum length of partial jump (in window)                         |  $l_{\mathrm{max}}^{\mathrm{jump}}$   |   4    |
 
 #### Partial matching
@@ -59,7 +63,7 @@ The AR order of Burg's method $p_{\mathrm{predict}}$ should be large for better 
 | Partial length threshold for potential matching (in window) | $l_{\mathrm{min}}^{\mathrm{match}}$ |   4   |
 | Amplitude slope ratio threshold for attack detection        |     $\beta_a^{\mathrm{attack}}$     |  2.5  |
 | Assignment threshold for amplitude change (in dB)           |     $\zeta_a^{\mathrm{match}}$      |  10   |
-| Assignment threshold for frequency change                   |     $\zeta_f^{\mathrm{match}}$      | 0.002 |
+| Assignment threshold for frequency change                   |     $\zeta_f^{\mathrm{match}}$      | 0.003 |
 | Preference between useful and spurious assignments          |      $\delta^{\mathrm{match}}$      |  0.5  |
 
 #### Partial extrapolation
@@ -84,6 +88,21 @@ The AR order of Burg's method $p_{\mathrm{predict}}$ should be large for better 
 | Parameter                                                  |          Symbol          |                   Value                   |
 |:-----------------------------------------------------------|:------------------------:|:-----------------------------------------:|
 | Length to ignore for analysis (in sample)                  |  $N_{\mathrm{ignore}}$   | $\lceil \psi_{\mathrm{tonal}} / 4 \rceil$ |
-| AR order of Burg's model                                   |   $p_{\mathrm{noise}}$   |                    128                    |
+| AR order of Burg's model                                   |   $p_{\mathrm{noise}}$   |                    256                    |
 | Crossfade length for crossfading noise signals (in sample) |   $N_{\mathrm{noise}}$   |                    32                     |
-| Crossfade length for reliable neighborhoods (in sample)    | $N_{\mathrm{crossfade}}$ |                    128                    |
+| Crossfade length for reliable neighborhoods (in sample)    | $N_{\mathrm{crossfade}}$ |    0.08 $\times$ gap length in samples    |
+
+### Parameters in Experiment 1
+
+For the experiment 1, we tune several parameters based on the singals' characteristics, which is summarized below.
+
+| Parameter                                                        |            Symbol            | Value  |
+|:-----------------------------------------------------------------|:----------------------------:|:------:|
+| Window size (partial tracking)                                   |  $\Psi_{\mathrm{partial}}$   |  1024  |
+| Time shift / hop size (partial tracking)                         |    $H_{\mathrm{partial}}$    |  128   |
+| Amplitude threshold for peak picking (partial tracking)          |     $a_{\mathrm{peak}}$      |  −54   |
+| Assignment threshold for amplitude change (partial tracking)     |  $\zeta_a^{\mathrm{track}}$  |   9    |
+| Assignment threshold for frequency change (partial tracking)     |  $\zeta_f^{\mathrm{track}}$  |  0.25  |
+| Assignment threshold for amplitude change (partial reconnection) | $\zeta_a^{\mathrm{connect}}$ |   5    |
+| Assignment threshold for frequency change (partial reconnection) | $\zeta_f^{\mathrm{connect}}$ | 0.0003 |
+| Assignment threshold for frequency change (partial matching)     |  $\zeta_f^{\mathrm{match}}$  | 0.0012 |
