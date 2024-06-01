@@ -45,17 +45,15 @@ export default function Home() {
         <div className="grid grid-cols-2 gap-x-4 gap-y-4 mt-16">
           <ExperimentCard headerText="Experiment 1"
                           bodyText="The experiment compares the inpainting methods on handling two non-stationary signals.
-                          The first test signal is synthesized with linear chirps, random exponentially damped sinusoids,
-                          and added noise (with a noise level of –20 dB). The gap length is set to 100 ms.
-                          The second signal is a soprano recording with vibrato from the SQAM dataset.
-                          The gap length is set to 50 ms."
+                          The first test signal is synthesized with quadratic chirps, damped sinusoids,
+                          and added noise. The second signal is a soprano recording with vibrato from the SQAM dataset.
+                          The gap length for both signals is set to 50 ms."
                           footerLinkText="View Results"
                           footerLinkHref="/experiment1"
                           disableFooter={false}/>
           <ExperimentCard headerText="Experiment 2"
-                          bodyText="The experiment compares the inpainting methods quantitatively using a horn
-                          recording from the SQAM dataset. The gap length varies from 10 to 200 ms.
-                          SNR, ODG, and runtime are used in this experiment as evaluation metrics."
+                          bodyText="The experiment compares the inpainting methods quantitatively using six
+                          recordings from the SQAM dataset. The gap length varies from 10 to 150 ms."
                           footerLinkText="View Results"
                           footerLinkHref="/experiment2"
                           disableFooter={false}/>
@@ -66,6 +64,11 @@ export default function Home() {
                           footerLinkText="More Information"
                           footerLinkHref="/parameters"
                           disableFooter={false}/>
+            <ExperimentCard headerText="Technical details"
+                            bodyText="The technical details of some methods used in the hybrid audio inpainting approach."
+                            footerLinkText="More Information"
+                            footerLinkHref="/techniques"
+                            disableFooter={false}/>
           <ExperimentCard headerText="MATLAB implementation"
                           bodyText="We are preparing the MATLAB code and will release it soon."
                           footerLinkText="Get Code"

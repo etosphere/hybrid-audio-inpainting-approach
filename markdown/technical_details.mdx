@@ -2,6 +2,15 @@ This page will describe the technical details for some methods used in the hybri
 
 ## Pre-processing
 
+The center of the gap should be aligned with the window so that the reconstruction energy will be symmetric (Mokrý and Rajmic 2020).
+The amount of extra shift is referred to as the offset. There are two configurations of offsets: the full offset
+aligns the center of the gap with the center of a Gabor window, whereas the half offset places the gap's center
+just in the midpoint of two adjacent windows. In our method, the half offset configuration will be chosen.
+
+The minimum length of the shortened signal is determined based on the offset, window size, and time shift of the window
+(Rajmic et al. 2015). In order to better estimate time-varying signals, we will set the length longer than the minimal support.
+The extended length of the left and right neighborhoods $N_{\mathrm{neighbor}}$ will be an integer multiple of the time shift of the window.
+
 ## Tuning of parameter lambda
 
 For tuning parameter $\lambda$ of the tonal decomposition process, a short-time Fourier transform (STFT) of the signal is performed using a Hann window of length 128 and a hop size of 32. The gradient magnitude at the location of each TF atom is computed (a slight abuse of notation for the gradient), which reflects their local variability:
@@ -52,14 +61,16 @@ The process starts by selecting the longest partial and comparing it with all ot
 For each pair of selected partials, the long one needs to be extrapolated for comparison. There are two cases of extrapolation of the long partial: if they overlap, the overlapping data points are removed and then the long partial is extrapolated using the proposed prediction method. If they do not overlap, the full range of data points is used to extrapolate the long partial.
 
 ## Partial extrapolation
+For the amplitude extrapolation, different methods are applied to the three groups of partials.
+
+The matched partials are interpolated using the amplitude constraint and asymmetric crossfading method proposed by Lagrange et al. (2005), but with our partial prediction method instead. The unmatched born partials are further separated into two types based on their slope of the trend line calculated from the general partial prediction method.
+
 If the slope is positive, indicating an increasing amplitude in the long term, the predicted amplitude at the beginning of the gap is checked against a certain threshold. If it is below (or equal to) the threshold, the predicted amplitude is unchanged. If it is above the threshold, a linear attack is added so that the amplitude at the beginning of the gap reaches the threshold.
 
 If the slope is negative or zero, indicating a decreasing or constant amplitude in the long term, we assume the partial is attacked and then decayed during the gap in this scenario. Therefore, the amplitude curve is constructed by replacing the linear trend with a parabola that satisfies three conditions:
 - the first reliable amplitude after the gap should be on the parabola,
 - the derivative of the parabola at the first reliable data point after the gap should be the same as the slope of the linear trend, if the slope of the linear trend is not too steep, and
 - the amplitude at the start of the partial should be below the minimal amplitude threshold.
-
-![parabola-shape](./paper/figures/amplitude-parabola-partial-birth.pdf)
 
 The parabola in the form of $ax^2+bx+c$ can be derived by solving the following linear equations:
 $$
@@ -77,4 +88,15 @@ $$
   \end{pmatrix}
 \end{equation}
 $$
-where $a_{\mathrm{R}}$ is the first reliable amplitude after the gap, $\beta_{\mathrm{trend}}$ is the slope of linear trend, and $l_{\mathrm{birth}}$ is the length of the partial birth.
+where $k_{\mathrm{R}}$ is the frame index of the first reliable amplitude of the gap, $a_{\mathrm{R}}$ is the first reliable amplitude after the gap, $\beta_{\mathrm{trend}}$ is the slope of linear trend, $l_{\mathrm{birth}}$ is the length of the partial birth, and $T_a$ is the minimal amplitude threshold.
+
+The predicted parabolic curve of the amplitude of a partial birth. The gray dashed line represents the limits of the gap, the blue solid line on the right side represents the analyzed partial, the green dashed line represents the estimated linear trend, and the red solid line on the left side represents the calculated parabolic curve.
+
+![parabola-extrapolation-of-partial-birth](./images/parabola-partial-birth.webp)
+
+The amplitude curve is then obtained by adding the parabola to the periodicity prediction curve.
+
+The unmatched dead partials are treated similarly as the unmatched born partials, except that the sign of the slope condition is flipped, and parabola conditions are changed accordingly.
+
+![parabola-extrapolation-of-partial-death](./images/parabola-partial-death.webp)
+

@@ -7,6 +7,9 @@ export const siteConfig = {
     label: "Parameters",
     href: "/parameters",
   }, {
+    label: "Technical Details",
+    href: "/techniques",
+  }, {
     label: "Experiment 1",
     href: "/experiment1",
   }, {
