@@ -43,6 +43,18 @@ export default function Home() {
         <h2 className={title()}>Hybrid Audio Inpainting Approach with Structured Sparse Decomposition and Sinusoidal Modeling</h2>
 
         <div className="grid grid-cols-2 gap-x-4 gap-y-4 mt-16">
+          <ExperimentCard headerText="Parameter description and explanation"
+                          bodyText="The experiment about the multilayered expansion results.
+													Three decomposed components (layers) are obtained from an input signal with gaps:
+													tonal, transient, and noise."
+                          footerLinkText="More Information"
+                          footerLinkHref="/parameters"
+                          disableFooter={false}/>
+          <ExperimentCard headerText="Technical details"
+                          bodyText="The technical details of some methods used in the hybrid audio inpainting approach."
+                          footerLinkText="More Information"
+                          footerLinkHref="/techniques"
+                          disableFooter={false}/>
           <ExperimentCard headerText="Experiment 1"
                           bodyText="The experiment compares the inpainting methods on handling two non-stationary signals.
                           The first test signal is synthesized with quadratic chirps, damped sinusoids,
@@ -57,23 +69,11 @@ export default function Home() {
                           footerLinkText="View Results"
                           footerLinkHref="/experiment2"
                           disableFooter={false}/>
-          <ExperimentCard headerText="Parameter description and explanation"
-													bodyText="The experiment about the multilayered expansion results.
-													Three decomposed components (layers) are obtained from an input signal with gaps:
-													tonal, transient, and noise."
-                          footerLinkText="More Information"
-                          footerLinkHref="/parameters"
-                          disableFooter={false}/>
-            <ExperimentCard headerText="Technical details"
-                            bodyText="The technical details of some methods used in the hybrid audio inpainting approach."
-                            footerLinkText="More Information"
-                            footerLinkHref="/techniques"
-                            disableFooter={false}/>
           <ExperimentCard headerText="MATLAB implementation"
-                          bodyText="We are preparing the MATLAB code and will release it soon."
+                          bodyText="The MATLAB code for algorithm implementations and experiment."
                           footerLinkText="Get Code"
-                          footerLinkHref=""
-                          disableFooter={true}/>
+                          footerLinkHref="https://github.com/etosphere/hybrid-audio-inpainting-code"
+                          disableFooter={false}/>
         </div>
       </div>
     </section>
